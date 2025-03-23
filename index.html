@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>Price Table</title>
+  <style>
+    body { font-family: sans-serif; width: 1200px; margin: 30px auto; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #aaa; padding: 8px; text-align: center; }
+    th { background: #eee; }
+  </style>
+</head>
+<body>
+  <h2>ตารางราคาสินค้า</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th><th>Status</th><th>Check1</th><th>Check2</th><th>Check3</th>
+        <th>Mudjum</th><th>Profit</th><th>Weight (kg)</th><th>Close Date</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
+  <script>
+    fetch('/products.json')
+      .then(res => res.json())
+      .then(data => {
+        const tbody = document.getElementById('tbody');
+        data.forEach(p => {
+          tbody.innerHTML += `
+            <tr>
+              <td>${p.id}</td>
+              <td>${p.status}</td>
+              <td>${p.check1}</td>
+              <td>${p.check2}</td>
+              <td>${p.check3}</td>
+              <td>${p.mudjum}</td>
+              <td>${p.profit}</td>
+              <td>${p.w}</td>
+              <td>${p.day}/${p.month}/${p.year}</td>
+            </tr>`;
+        });
+      });
+  </script>
+</body>
+</html>
