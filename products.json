@@ -1,28 +1,74 @@
 [
   {
-    "id": 1,
-    "status": "new",
-    "check1": "3333",
-    "check2": "1500",
-    "check3": 600,
-    "mudjum": 700,
-    "profit": "300",
-    "w": "1.5",
-    "day": "25",
-    "month": "3",
-    "year": "2025"
+    "id": 2,
+    "gcode": "FIGURE-184048",
+    "name": "Dragon Ball Arise Piccolo Complete Figure(Pre-order)",
+    "price": 30180,
+    "status": "Promoted",
+    "release": "Jul-2025",
+    "maker": "PLEX",
+    "barcode": "4562351891448",
+    "spec": "Pre-painted Complete Figure\nSize: Approx. H29cm\nMaterial: PVC",
+    "detail": "",
+    "images": [
+      "https://img.amiami.com/images/product/main/251/FIGURE-184048.jpg",
+      "https://img.amiami.com/images/product/review/251/FIGURE-184048_01.jpg",
+      "https://img.amiami.com/images/product/review/251/FIGURE-184048_02.jpg",
+      "https://img.amiami.com/images/product/review/251/FIGURE-184048_03.jpg",
+      "https://img.amiami.com/images/product/review/251/FIGURE-184048_04.jpg",
+      "https://img.amiami.com/images/product/review/251/FIGURE-184048_05.jpg",
+      "https://img.amiami.com/images/product/review/251/FIGURE-184048_06.jpg",
+      "https://img.amiami.com/images/product/review/251/FIGURE-184048_07.jpg"
+    ],
+    "series_titles": [],
+    "original_titles": [
+      "\"Dragon Ball\" Series"
+    ],
+    "character_names": [
+      "Piccolo(Ma Junior)"
+    ],
+    "check1": "",
+    "check2": "",
+    "mudjum": "",
+    "check3": "",
+    "profit": "",
+    "w": "",
+    "day": "",
+    "month": "",
+    "year": ""
   },
   {
     "id": 3,
-    "status": "Uploaded",
-    "check1": 800,
-    "check2": 1300,
-    "check3": 400,
-    "mudjum": 500,
-    "profit": 150,
-    "w": 0.9,
-    "day": 10,
-    "month": 5,
-    "year": 2025
+    "gcode": "FIGURE-184031",
+    "name": "Street Fighter Action Figure 1/12 Guile Player 2(Pre-order)",
+    "price": 3960,
+    "status": "new",
+    "release": "Jul-2025",
+    "maker": "Jada Toys",
+    "barcode": "4562437982770",
+    "spec": "Scale: 1/12\nSize: Approx. H16cm\nMaterial: PVC\n\n[Set Contents]\nMain figure\nAlternative head and hand part\nSpecial attack effect part\nSupport part\nComb\nDog tag",
+    "detail": "",
+    "images": [
+      "https://img.amiami.com/images/product/main/251/FIGURE-184031.jpg",
+      "https://img.amiami.com/images/product/review/251/FIGURE-184031_01.jpg",
+      "https://img.amiami.com/images/product/review/251/FIGURE-184031_02.jpg",
+      "https://img.amiami.com/images/product/review/251/FIGURE-184031_03.jpg",
+      "https://img.amiami.com/images/product/review/251/FIGURE-184031_04.jpg",
+      "https://img.amiami.com/images/product/review/251/FIGURE-184031_05.jpg",
+      "https://img.amiami.com/images/product/review/251/FIGURE-184031_06.jpg",
+      "https://img.amiami.com/images/product/review/251/FIGURE-184031_07.jpg",
+      "https://img.amiami.com/images/product/review/251/FIGURE-184031_08.jpg",
+      "https://img.amiami.com/images/product/review/251/FIGURE-184031_09.jpg",
+      "https://img.amiami.com/images/product/review/251/FIGURE-184031_10.jpg",
+      "https://img.amiami.com/images/product/review/251/FIGURE-184031_11.jpg"
+    ],
+    "series_titles": [],
+    "original_titles": [
+      "Street Fighter II",
+      "\"Street Fighter\" Series"
+    ],
+    "character_names": [
+      "Guile"
+    ]
   }
 ]
