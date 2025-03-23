@@ -5,7 +5,7 @@ const path = require('path');
 const url = require('url');
 
 const DATA_FILE = path.join(__dirname, 'products.json');
-const PORT = 3000;
+const PORT = 200;
 
 function loadProducts() {
     if (!fs.existsSync(DATA_FILE)) return [];
