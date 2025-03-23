@@ -8,6 +8,7 @@
 
 ### 4. เข้า Command Line (Win+R) แล้วพิมพ์ cmd จากนั้นพิมพ์คำสั่ง
 ```
+cd Documents
 cd ameshop-main
 ```
 
