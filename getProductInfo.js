@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
-const IMAGE_DOWNLOAD_DELAY_MS = 300;
+const IMAGE_DOWNLOAD_DELAY_MS = 300; //DELAY ดึงข้อมูลจากเว็บ Amimi (300 = 300ms)
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -30,26 +30,40 @@ if (fs.existsSync(DATA_FILE)) {
   }
 }
 
-function extractGcode(link) {
-  const match = link.match(/gcode=([\w-]+)/)
-  return match ? match[1] : null
+// หาค่า id สูงสุดที่มีใน products.json
+let currentMaxId = products.reduce((max, p) => Math.max(max, p.id), 0)
+
+function extractCode(link) {
+  const gcodeMatch = link.match(/gcode=([\w-]+)/)
+  const scodeMatch = link.match(/scode=([\w-]+)/)
+  if (gcodeMatch) {
+    return { type: 'gcode', code: gcodeMatch[1] }
+  } else if (scodeMatch) {
+    return { type: 'scode', code: scodeMatch[1] }
+  } else {
+    return null
+  }
 }
 
 for (const link of links) {
-  const gcode = extractGcode(link)
-  if (!gcode) {
-    console.log(`❌ ไม่พบ gcode: ${link}`)
+  const result = extractCode(link)
+  if (!result) {
+    console.log(`   XXX Cannot find gcode or scode: ${link}`)
     continue
   }
 
-  if (products.find(p => p.gcode === gcode)) {
-    console.log(`⚠️ ข้าม ${gcode} (มีแล้ว)`)
+  const { type, code } = result
+
+  if (products.find(p => p.gcode === code || p.scode === code)) {
+    console.log(`   !!! Skip ${code} (already have this item.)`)
     continue
   }
 
-  console.log(`📦 กำลังโหลด ${gcode} ...`)
+  console.log(`   Downloading ${type.toUpperCase()} ${code} ...`)
 
-  const r = await fetch(`https://api.amiami.com/api/v1.0/item?gcode=${gcode}&lang=eng`, {
+  const apiParam = type === 'gcode' ? `gcode=${code}` : `scode=${code}`
+
+  const r = await fetch(`https://api.amiami.com/api/v1.0/item?${apiParam}&lang=eng`, {
     headers: {
       "accept": "application/json, text/plain, */*",
       "accept-language": "en-US,en;q=0.9,th;q=0.8,th-TH;q=0.7,ja;q=0.6",
@@ -69,13 +83,14 @@ for (const link of links) {
   }).then(res => res.json()).catch(() => null)
 
   if (!r || !r.RSuccess || typeof r.item === 'undefined') {
-    console.log(`❌ ดึงข้อมูลไม่ได้: ${gcode}`)
+    console.log(`   XXX Cannot fetch item : ${code}`)
     continue
   }
 
   const product = {
-    id: products.length + 1,
-    gcode: r.item.gcode,
+    id: ++currentMaxId,
+    gcode: r.item.gcode ?? null,
+    scode: r.item.scode ?? null,
     name: r.item.sname,
     price: r.item.price,
     status: 'new',
@@ -100,11 +115,11 @@ for (const link of links) {
       fs.writeFileSync(path.join(__dirname, 'images', fileName), Buffer.from(buf))
       await delay(IMAGE_DOWNLOAD_DELAY_MS)
     } catch {
-      console.log(`❌ โหลดรูปไม่สำเร็จ: ${url}`)
+      console.log(`   XXX Fail to download : ${url}`)
     }
   }
 
   products.push(product)
   fs.writeFileSync(DATA_FILE, JSON.stringify(products, null, 2))
-  console.log(`✅ บันทึก ${gcode} แล้ว`)
+  console.log(`   Records ${code} success.`)
 }

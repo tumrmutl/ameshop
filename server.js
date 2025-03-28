@@ -71,7 +71,7 @@ function renderPriceTable(products) {
             </td>
             <td>
               ¥${p.price || 0}<br/>
-              <input type="number" name="w_${p.id}" placeholder="น้ำหนัก(kg)" step="0.01" onchange="calcPrice(${p.id})" value="${p.w ?? ''}" />
+              <input type="number" name="w_${p.id}" placeholder="น้ำหนัก(kg)" step="0.01" onchange="calcPrice(${p.id})" oninput="calcPrice(${p.id})" value="${p.w ?? ''}" />
               <br /><input type="number" name="profit_${p.id}" placeholder="กำไร(บาท)" onchange="calcPrice(${p.id})" value="${p.profit ?? config.profit}" />
             </td>
             <td><input type="text" name="lotjp_${p.id}" id="lotjp_${p.id}" value="${p.lotjp ?? ''}" /></td>
@@ -86,47 +86,80 @@ function renderPriceTable(products) {
 <style>
   body { width: 1280px; height: 1024px; margin: 0; overflow: auto; font-family: sans-serif; }
   table { border-collapse: collapse; width: 1280px; table-layout: fixed; }
-  th, td { border: 1px solid #000; padding: 4px; font-size: 12px; text-align: center; overflow: hidden; white-space: nowrap; }
-  input[type="text"], input[type="number"], select { width: 90px; font-size: 12px; }
-  img { display: block; width: 60px; height: 60px; object-fit: cover; margin: 0 auto; }
-  button { width: 100px; height: 30px; font-size: 14px; }
+  th, td {
+    border: 1px solid #000;
+    padding: 4px;
+    font-size: 12px;
+    text-align: center;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  input[type="text"], input[type="number"], select {
+    width: 90px;
+    font-size: 12px;
+  }
+  img {
+    display: block;
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    margin: 0 auto;
+  }
+  button {
+    width: 100px;
+    height: 30px;
+    font-size: 14px;
+  }
+
+  /* ✅ ทำให้เฉพาะช่องชื่อสินค้า responsive + ตัดคำ */
+  td:nth-child(3) {
+    white-space: normal !important;
+    word-break: break-word;
+    word-wrap: break-word;
+    text-align: left;
+    vertical-align: top;
+  }
 </style>
+
 <script>
-  const rateJPY = parseFloat("${rateJPY}") || 0;
-  const shippingCostPerKg = parseFloat("${shipping_cost_per_1kg}") || 0;
-  const defaultProfit = parseFloat("${profit}") || 0;
+  const rateJPY = parseFloat("${config.rateJPY || rateJPY}") || 0;
+  const shippingCostPerKg = parseFloat("${config.shipping_cost_per_1kg || shipping_cost_per_1kg}") || 0;
+  const defaultProfit = parseFloat("${config.profit || profit}") || 0;
   const products = ${JSON.stringify(products.map(p => ({ ...p, price: Number(p.price || 0) })))};
 
-  function calcPrice(id) {
-    const wEl = document.querySelector("[name='w_" + id + "']");
-    const profitEl = document.querySelector("[name='profit_" + id + "']");
-    const lotjpEl = document.getElementById("lotjp_" + id);
 
-    const w = wEl ? parseFloat(wEl.value) || 0 : 0;
-    const profit = profitEl ? parseFloat(profitEl.value) || defaultProfit : defaultProfit;
-    const product = products.find(p => p.id == id || p.id == parseInt(id));
+function calcPrice(id) {
+  const wEl = document.querySelector("[name='w_" + id + "']");
+  const profitEl = document.querySelector("[name='profit_" + id + "']");
+  const lotjpEl = document.getElementById("lotjp_" + id);
 
-    if (!product || !lotjpEl) return;
+  const w = wEl ? parseFloat(wEl.value) || 0 : 0;
+  const profit = profitEl ? parseFloat(profitEl.value) || defaultProfit : defaultProfit;
+  const product = products.find(p => p.id == id || p.id == parseInt(id));
 
-    const priceJPY = product.price;
-    const result = (priceJPY * rateJPY) + (w * shippingCostPerKg) + profit;
+  if (!product || !lotjpEl) return;
 
-    console.log({
-      id,
-      priceJPY,
-      rateJPY,
-      w,
-      shippingCostPerKg,
-      profit,
-      formulaResult: result
-    });
+  const priceJPY = product.price;
+  let result = (priceJPY * rateJPY) + (w * shippingCostPerKg) + profit;
 
-    lotjpEl.value = Math.ceil(result);
+  // 🔧 ปรับหลักท้ายตามเงื่อนไข
+  let rounded = Math.ceil(result);
+  const lastTwo = rounded % 100;
+
+  if (lastTwo <= 25) {
+    rounded = rounded - lastTwo; // ลงท้าย 00
+  } else if (lastTwo <= 74) {
+    rounded = rounded - lastTwo + 50; // ลงท้าย 50
+  } else {
+    rounded = rounded - lastTwo + 100; // ปัดขึ้นร้อย
   }
+
+  lotjpEl.value = rounded;
+}
 </script>
 </head>
 <body>
-    <h2>📋 Price Table</h2>
+    <h2>📋 Price Table [ ${products.length} items ]</h2>
     <form method="POST" action="/price">
     <table>
         <thead>
@@ -138,9 +171,16 @@ function renderPriceTable(products) {
           ${rows}
         </tbody>
     </table>
-    <br><button type="submit">💾 Save Changes</button>
+    <br><button type="submit">💾 Save</button> &nbsp;&nbsp;&nbsp;&nbsp; <button type="button" onclick="promoteAll()">🟢 Promote</button>
     </form>
-    <p><a href="/promote">→ ไปหน้า Promote Table</a></p>
+    <br /><p><a href="/promote">→ ไปหน้า Promote Table</a></p>
+    <script>
+  function promoteAll() {
+    fetch('/promote-all', { method: 'POST' })
+      .then(() => window.location.reload())
+      .catch(err => alert("Promote All Failed: " + err));
+  }
+</script>
 </body></html>`;
 }
 
@@ -418,15 +458,26 @@ function html( p ) {
   `;
 }
 
+function escapeHtml(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 // ส่วนที่เหลือของ server logic สามารถคงไว้ตามที่ใช้อยู่
 function renderPromoteTable(products) {
+
     const rows = products.map(p => {
         return `<tr>
             <td>${p.id}</td>
-            <td>${p.gcode}</td>
-            <td><input type="text" value="${p.name}"><br /><img src="${p.images?.[0] || ''}" alt="${p.name}" /></td>
-            <td>${Math.max(Number(p.lotjp || 0), Number(p.lotagent || 0))}</td>
-            <td><textarea>as I'm seller in marketplace and I want to promote my product in twitter, I have only product name, can you provide me hashtag of my product. Give me 4 hashtag don't want line number, just provide hashtag result, provide continuous not new line. Just give me only hashtag, don't explain me anything because I want to copy it to another website. This is my product name: ${filterName(p.name)}</textarea></td>
+            <td><input type="text" value="${p.gcode}"></td>
+            <td><input type="text" value="${escapeHtml(p.name)}"><br /><img src="${p.images?.[0] || ''}" alt="${p.name}" /></td>
+            <td><input type="text" value="${Math.max(Number(p.lotjp || 0), Number(p.lotagent || 0))}"></td>
+            <td><textarea>as I'm seller in marketplace and I want to promote my product in twitter, I have only product name, can you provide me hashtag of my product. Give me 4 hashtag don't want line number, just provide hashtag result, provide continuous not new line. Just give me only hashtag, don't explain me anything because I want to copy it to another website. This is my product name: ${filterName(p.name)}
+            ${Array.isArray(p.series_titles) ? p.series_titles.join(' ')  : ''} ${Array.isArray(p.original_titles) ? p.original_titles.join(' ')  : ''} ${Array.isArray(p.character_names) ? p.character_names.join(' ')  : ''}
+            </textarea></td>
             <td><textarea></textarea></td>
             <td><textarea>${fb( p )}</textarea></td>
             <td><textarea>${ x( p ) }</textarea></td>
@@ -453,7 +504,7 @@ function renderPromoteTable(products) {
 </style>
 </head>
 <body>
-    <h2>🟢 Promote Table</h2>
+    <h2>🟢 Promote Table [ ${products.length} items ]</h2>
     <table>
         <thead>
           <tr>
@@ -474,6 +525,16 @@ function renderPromoteTable(products) {
           ${rows}
         </tbody>
     </table>
+    <br />
+<button onclick="editAll()">EditAll</button>
+<script>
+  function editAll() {
+    fetch('/edit-all', { method: 'POST' })
+      .then(() => window.location.reload())
+      .catch(err => alert("Edit All Failed: " + err));
+  }
+</script>
+
     <p><a href="/price">← กลับไปหน้า Price Table</a></p>
 </body></html>`;
 }
@@ -493,6 +554,27 @@ const server = http.createServer(async (req, res) => {
             res.end();
             return;
         }
+
+        if (parsedUrl.pathname === '/promote-all') {
+          for (const p of products) {
+            p.status = 'Promoted';
+          }
+          saveProducts(products);
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: true }));
+          return;
+        }
+        
+        if (parsedUrl.pathname === '/edit-all') {
+          for (const p of products) {
+            p.status = 'Edited';
+          }
+          saveProducts(products);
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: true }));
+          return;
+        }
+        
 
         if (parsedUrl.pathname === '/price') {
             let updated = [];
