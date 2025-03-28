@@ -8,8 +8,7 @@
 
 ### 4. เข้า Command Line (Win+R) แล้วพิมพ์ cmd จากนั้นพิมพ์คำสั่ง
 ```
-cd Documents ;
-cd ameshop-main
+cd Documents ; cd ameshop-main ;
 ```
 
 ### 5. ใส่ลิงค์ใน link.txt จากนั้นเปิด Command Line และรัสโค้ดต่อไปนี้เพื่อเก็บข้อมูล
